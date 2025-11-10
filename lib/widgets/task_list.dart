@@ -1,4 +1,6 @@
+
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../providers/task_provider.dart';
 
@@ -31,6 +33,15 @@ class TaskList extends StatelessWidget {
                         : TextDecoration.none,
                   ),
             ),
+            subtitle: task.dueDate != null
+                ? Text(
+                    'Due: ${DateFormat.yMd().add_jm().format(task.dueDate!)}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: task.isCompleted ? Colors.grey : Theme.of(context).colorScheme.primary,
+                    ),
+                  )
+                : null,
             leading: Checkbox(
               value: task.isCompleted,
               onChanged: (value) => taskProvider.toggleTaskStatus(task.id),

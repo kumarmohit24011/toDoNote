@@ -3,7 +3,7 @@
 
 ## Overview
 
-ToDoNote is a simple and clean Flutter application for managing tasks. It allows users to add, view, complete, and delete tasks, with all data stored locally on the device.
+ToDoNote is a simple and clean Flutter application for managing tasks. It allows users to add, view, complete, and delete tasks, with all data stored locally on the device. The app also supports setting due dates for tasks and receiving notifications when a task is due.
 
 ## Features
 
@@ -12,6 +12,8 @@ ToDoNote is a simple and clean Flutter application for managing tasks. It allows
 *   **Complete Tasks:** Mark tasks as complete.
 *   **Delete Tasks:** Remove tasks from the list.
 *   **Local Storage:** Tasks are saved locally using the `shared_preferences` package, so they persist between app launches.
+*   **Due Dates:** Set a due date and time for each task.
+*   **Notifications:** Receive a notification when a task's due date and time is reached.
 
 ## Design and Style
 
@@ -26,6 +28,8 @@ lib/
 |   `-- task.dart
 |-- providers/
 |   `-- task_provider.dart
+|-- services/
+|   `-- notification_service.dart
 |-- screens/
 |   `-- home_screen.dart
 |-- widgets/
@@ -36,9 +40,10 @@ lib/
 
 ## Current Plan
 
-1.  **Add Dependencies:** Add `provider` and `shared_preferences` to `pubspec.yaml`.
-2.  **Create Project Structure:** Create the necessary directories and files.
-3.  **Implement `Task` Model:** Define the `Task` class.
-4.  **Implement `TaskProvider`:** Manage task state and local storage.
-5.  **Implement UI:** Build the main screen, task lists, and dialogs.
-6.  **Update `main.dart`:** Set up the app's entry point with the `ChangeNotifierProvider`.
+1.  **Add Dependencies:** Add `flutter_local_notifications` and `intl` to `pubspec.yaml`.
+2.  **Create Notification Service:** Create `lib/services/notification_service.dart` to handle local notifications.
+3.  **Initialize Notification Service:** Update `lib/main.dart` to initialize the notification service.
+4.  **Update `Task` Model:** Add a `dueDate` field to the `Task` class in `lib/models/task.dart`.
+5.  **Update `TaskProvider`:** Modify `lib/providers/task_provider.dart` to handle scheduling and canceling notifications when tasks are added, completed, or deleted.
+6.  **Implement UI for Due Dates:** Modify `lib/widgets/add_task_dialog.dart` to include a date and time picker.
+7.  **Display Due Dates:** Update `lib/widgets/task_list.dart` to display the due date for each task.

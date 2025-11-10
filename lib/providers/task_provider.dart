@@ -1,7 +1,9 @@
+
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/task.dart';
+import '../services/notification_service.dart';
 
 class TaskProvider with ChangeNotifier {
   List<Task> _tasks = [];
@@ -25,9 +27,12 @@ class TaskProvider with ChangeNotifier {
     await prefs.setStringList('tasks', taskList);
   }
 
-  void addTask(String title) {
-    final newTask = Task(id: DateTime.now().toString(), title: title);
+  void addTask(String title, [DateTime? dueDate]) {
+    final newTask = Task(id: DateTime.now().toString(), title: title, dueDate: dueDate);
     _tasks.add(newTask);
+    if (dueDate != null) {
+      NotificationService().scheduleNotification(newTask.id.hashCode, newTask.title, dueDate);
+    }
     saveTasks();
     notifyListeners();
   }
@@ -36,14 +41,25 @@ class TaskProvider with ChangeNotifier {
     final taskIndex = _tasks.indexWhere((task) => task.id == id);
     if (taskIndex != -1) {
       _tasks[taskIndex].isCompleted = !_tasks[taskIndex].isCompleted;
+      final task = _tasks[taskIndex];
+      if (task.isCompleted && task.dueDate != null) {
+        NotificationService().cancelNotification(task.id.hashCode);
+      }
       saveTasks();
       notifyListeners();
     }
   }
 
   void deleteTask(String id) {
-    _tasks.removeWhere((task) => task.id == id);
-    saveTasks();
-    notifyListeners();
+    final taskIndex = _tasks.indexWhere((task) => task.id == id);
+    if (taskIndex != -1) {
+      final task = _tasks[taskIndex];
+      if (task.dueDate != null) {
+        NotificationService().cancelNotification(task.id.hashCode);
+      }
+      _tasks.removeAt(taskIndex);
+      saveTasks();
+      notifyListeners();
+    }
   }
 }
