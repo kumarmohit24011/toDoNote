@@ -10,17 +10,21 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
-
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('ToDoNote'),
           actions: [
-            IconButton(
-              icon: Icon(themeProvider.themeMode == ThemeMode.dark ? Icons.light_mode : Icons.dark_mode),
-              onPressed: () => themeProvider.toggleTheme(),
+            Consumer<ThemeProvider>(
+              builder: (context, themeProvider, child) {
+                return IconButton(
+                  icon: Icon(themeProvider.themeMode == ThemeMode.dark
+                      ? Icons.light_mode
+                      : Icons.dark_mode),
+                  onPressed: () => themeProvider.toggleTheme(),
+                );
+              },
             ),
           ],
           bottom: const TabBar(
@@ -41,8 +45,18 @@ class HomeScreen extends StatelessWidget {
             showDialog(
               context: context,
               builder: (context) => AddTaskDialog(
-                onAddTask: (title) {
-                  Provider.of<TaskProvider>(context, listen: false).addTask(title);
+                onAddTask: (title, dueDate, isImportant) {
+                  if (dueDate != null && dueDate.isBefore(DateTime.now())) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Cannot schedule a task for a past date.'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                    return;
+                  }
+                  Provider.of<TaskProvider>(context, listen: false)
+                      .addTask(title, dueDate, isImportant);
                 },
               ),
             );

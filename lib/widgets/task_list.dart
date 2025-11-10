@@ -1,8 +1,8 @@
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../providers/task_provider.dart';
+import 'task_list_item.dart';
 
 class TaskList extends StatelessWidget {
   final bool isCompletedTasks;
@@ -16,42 +16,31 @@ class TaskList extends StatelessWidget {
         ? taskProvider.tasks.where((task) => task.isCompleted).toList()
         : taskProvider.tasks.where((task) => !task.isCompleted).toList();
 
+    if (tasks.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              isCompletedTasks ? Icons.check_circle_outline : Icons.list_alt_outlined,
+              size: 80,
+              color: Colors.grey.shade400,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              isCompletedTasks ? 'No completed tasks' : 'No pending tasks',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.grey.shade500),
+            ),
+          ],
+        ),
+      );
+    }
+
     return ListView.builder(
-      padding: const EdgeInsets.all(8.0),
       itemCount: tasks.length,
       itemBuilder: (context, index) {
         final task = tasks[index];
-        return Card(
-          elevation: 4.0,
-          margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
-          child: ListTile(
-            title: Text(
-              task.title,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    decoration: task.isCompleted
-                        ? TextDecoration.lineThrough
-                        : TextDecoration.none,
-                  ),
-            ),
-            subtitle: task.dueDate != null
-                ? Text(
-                    'Due: ${DateFormat.yMd().add_jm().format(task.dueDate!)}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: task.isCompleted ? Colors.grey : Theme.of(context).colorScheme.primary,
-                    ),
-                  )
-                : null,
-            leading: Checkbox(
-              value: task.isCompleted,
-              onChanged: (value) => taskProvider.toggleTaskStatus(task.id),
-            ),
-            trailing: IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: () => taskProvider.deleteTask(task.id),
-            ),
-          ),
-        );
+        return TaskListItem(task: task);
       },
     );
   }

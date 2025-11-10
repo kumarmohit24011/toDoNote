@@ -1,49 +1,40 @@
-
-# Blueprint for ToDoNote App
+# ToDoNote Blueprint
 
 ## Overview
 
-ToDoNote is a simple and clean Flutter application for managing tasks. It allows users to add, view, complete, and delete tasks, with all data stored locally on the device. The app also supports setting due dates for tasks and receiving notifications when a task is due.
+ToDoNote is a simple and beautiful To-Do list application for Flutter. It helps users organize their tasks, set due dates, and receive notifications. The app features a modern, clean UI with both light and dark themes.
 
-## Features
+## Design & Features
 
-*   **Add Tasks:** Quickly add new tasks with a title.
-*   **View Tasks:** See a list of active and completed tasks in separate tabs.
-*   **Complete Tasks:** Mark tasks as complete.
-*   **Delete Tasks:** Remove tasks from the list.
-*   **Local Storage:** Tasks are saved locally using the `shared_preferences` package, so they persist between app launches.
-*   **Due Dates:** Set a due date and time for each task.
-*   **Notifications:** Receive a notification when a task's due date and time is reached.
+### Theming
 
-## Design and Style
+*   **Modern Theme:** The app uses a modern theme with a clean and spacious layout.
+*   **Light & Dark Modes:** ToDoNote supports both light and dark themes, which can be toggled by the user.
+*   **Custom Fonts:** The app uses Google Fonts (`Oswald`, `Roboto Condensed`, and `Open Sans`) to create a unique and readable typography.
+*   **Consistent Styling:** The `ThemeData` is used to ensure consistent styling for all widgets, including `AppBar`, `Card`, `Dialog`, and `FloatingActionButton`.
 
-*   **UI:** A modern and clean user interface with a tab-based layout.
-*   **State Management:** The app uses the `provider` package for state management, with a `ChangeNotifier` to manage the task list.
+### Task Management
 
-## Project Structure
+*   **Add Tasks:** Users can add new tasks with a title and an optional due date.
+*   **View Tasks:** Tasks are displayed in two tabs: "Active" and "Completed".
+*   **Complete Tasks:** Users can mark tasks as complete by tapping on them.
+*   **Due Date Notifications:** The app schedules local notifications for tasks with a due date.
+*   **Task Editing:** Users can edit existing tasks by tapping the edit button, which opens a pre-filled dialog.
+*   **Task Deletion:** Users can delete tasks by tapping the delete button.
+*   **Task Prioritization:** Users can mark tasks as "important," which visually distinguishes them with a yellow border and moves them to the top of the task list.
 
-```
-lib/
-|-- models/
-|   `-- task.dart
-|-- providers/
-|   `-- task_provider.dart
-|-- services/
-|   `-- notification_service.dart
-|-- screens/
-|   `-- home_screen.dart
-|-- widgets/
-|   |-- add_task_dialog.dart
-|   `-- task_list.dart
-`-- main.dart
-```
+### UI Components
 
-## Current Plan
+*   **`TaskListItem`:** A custom widget that displays a task with a checkbox, title, and due date. The card has a modern, lifted design with a subtle shadow.
+*   **`AddTaskDialog`:** A styled dialog for adding new tasks. The text fields and buttons are themed to match the app's design.
+*   **`EmptyTaskList`:** A helpful message that appears when a task list is empty.
 
-1.  **Add Dependencies:** Add `flutter_local_notifications` and `intl` to `pubspec.yaml`.
-2.  **Create Notification Service:** Create `lib/services/notification_service.dart` to handle local notifications.
-3.  **Initialize Notification Service:** Update `lib/main.dart` to initialize the notification service.
-4.  **Update `Task` Model:** Add a `dueDate` field to the `Task` class in `lib/models/task.dart`.
-5.  **Update `TaskProvider`:** Modify `lib/providers/task_provider.dart` to handle scheduling and canceling notifications when tasks are added, completed, or deleted.
-6.  **Implement UI for Due Dates:** Modify `lib/widgets/add_task_dialog.dart` to include a date and time picker.
-7.  **Display Due Dates:** Update `lib/widgets/task_list.dart` to display the due date for each task.
+### Performance
+
+*   **Optimized for Performance:** The app is optimized to prevent unnecessary widget rebuilds, ensuring a smooth and responsive user experience.
+*   **`const` Widgets:** Static widgets are declared as `const` to improve performance.
+*   **Isolated State:** The `Consumer` widget is used to isolate theme-dependent widgets, preventing unnecessary rebuilds of the entire screen.
+
+## Next Steps
+
+*   **Firebase Integration:** The next step is to integrate Firebase to enable cloud storage and real-time data synchronization.
