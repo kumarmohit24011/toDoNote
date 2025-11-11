@@ -33,7 +33,7 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
     final pickedDate = await showDatePicker(
       context: context,
       initialDate: _selectedDate ?? now,
-      firstDate: now.subtract(const Duration(days: 1)), // Allow selecting today
+      firstDate: now.subtract(const Duration(days: 1)),
       lastDate: DateTime(2101),
     );
     if (pickedDate == null) {
@@ -45,6 +45,9 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
       initialTime: TimeOfDay.fromDateTime(_selectedDate ?? now),
     );
     if (pickedTime == null) {
+      setState(() {
+        _selectedDate = pickedDate;
+      });
       return;
     }
 
@@ -72,76 +75,113 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.task != null;
+    final theme = Theme.of(context);
 
     return AlertDialog(
-      title: Text(isEditing ? 'Edit Task' : 'New Task', style: Theme.of(context).textTheme.titleLarge),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          TextField(
-            controller: _controller,
-            autofocus: true,
-            decoration: const InputDecoration(hintText: 'Enter task title'),
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-          const SizedBox(height: 24),
-          Text('Due Date', style: Theme.of(context).textTheme.labelLarge),
-          const SizedBox(height: 8),
-          InkWell(
-            onTap: _presentDatePicker,
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-              decoration: BoxDecoration(
-                color: Theme.of(context).inputDecorationTheme.fillColor,
-                borderRadius: BorderRadius.circular(12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: Text(
+        isEditing ? 'Edit Task' : 'New Task',
+        style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+      ),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              controller: _controller,
+              autofocus: true,
+              decoration: InputDecoration(
+                hintText: 'Enter task title',
+                filled: true,
+                fillColor: theme.inputDecorationTheme.fillColor,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
               ),
-              child: Row(
-                children: [
-                  Icon(Icons.calendar_today_outlined, size: 20, color: Theme.of(context).colorScheme.primary),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Text(
-                      _selectedDate == null
-                          ? 'Not set'
-                          : DateFormat('MMM d, yyyy, h:mm a').format(_selectedDate!),
-                      style: Theme.of(context).textTheme.bodyLarge,
+              style: theme.textTheme.bodyLarge,
+            ),
+            const SizedBox(height: 24),
+            Text('Due Date & Time', style: theme.textTheme.labelLarge),
+            const SizedBox(height: 8),
+            InkWell(
+              onTap: _presentDatePicker,
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: theme.inputDecorationTheme.fillColor,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.calendar_today_outlined, size: 20, color: theme.colorScheme.primary),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Text(
+                        _selectedDate == null
+                            ? 'Not set'
+                            : DateFormat('MMM d, yyyy, h:mm a').format(_selectedDate!),
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: _selectedDate == null ? theme.hintColor : theme.textTheme.bodyLarge?.color,
+                        ),
+                      ),
                     ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+                padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+                decoration: BoxDecoration(
+                  color: theme.inputDecorationTheme.fillColor,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.star_border_rounded, color: theme.colorScheme.primary, size: 22),
+                      const SizedBox(width: 8),
+                      Text('Mark as Important', style: theme.textTheme.bodyLarge),
+                    ],
+                  ),
+                  Switch(
+                    value: _isImportant,
+                    onChanged: (value) {
+                      setState(() {
+                        _isImportant = value;
+                      });
+                    },
+                    activeColor: theme.colorScheme.primary,
                   ),
                 ],
               ),
             ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Checkbox(
-                value: _isImportant,
-                onChanged: (value) {
-                  setState(() {
-                    _isImportant = value ?? false;
-                  });
-                },
-                activeColor: Theme.of(context).colorScheme.primary,
-              ),
-              const Text('Mark as Important'),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: Text('Cancel', style: Theme.of(context).textTheme.labelLarge),
+          child: Text('Cancel', style: theme.textTheme.labelLarge),
         ),
         ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
           onPressed: () {
             if (_controller.text.isNotEmpty) {
               widget.onAddTask(_controller.text, _selectedDate, _isImportant);
               Navigator.pop(context);
             }
           },
-          child: Text(isEditing ? 'Save' : 'Add Task', style: Theme.of(context).textTheme.labelLarge),
+          child: Text(isEditing ? 'Save' : 'Add Task'),
         ),
       ],
     );
