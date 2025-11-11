@@ -5,7 +5,6 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'dart:developer' as developer;
 
-// Define the notification channel
 const AndroidNotificationChannel channel = AndroidNotificationChannel(
   'high_importance_channel', // id
   'High Importance Notifications', // title
@@ -26,75 +25,85 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   Future<void> init() async {
+    developer.log('Initializing NotificationService...', name: 'NotificationService');
     const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+        AndroidInitializationSettings('@drawable/ic_notification');
 
     const InitializationSettings initializationSettings =
         InitializationSettings(android: initializationSettingsAndroid);
 
     tz.initializeTimeZones();
 
-    // Initialize with the callback
     await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) async {
         developer.log('Notification was tapped. Payload: ${response.payload}', name: 'NotificationService');
-        // Here you could add navigation logic based on the payload
       },
     );
 
-    // Create the notification channel on Android
     await flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
 
     await _requestPermissions();
+    developer.log('NotificationService initialized.', name: 'NotificationService');
   }
 
   Future<void> _requestPermissions() async {
-    PermissionStatus notificationStatus = await Permission.notification.request();
-    if (notificationStatus.isDenied) {
-      developer.log('Notification permission was denied.', name: 'NotificationService');
-    }
-
-    if (await Permission.scheduleExactAlarm.isDenied) {
-       PermissionStatus exactAlarmStatus = await Permission.scheduleExactAlarm.request();
-       if(exactAlarmStatus.isDenied) {
-         developer.log('Schedule exact alarm permission was denied.', name: 'NotificationService');
-       }
-    }
+    developer.log('Requesting notification permissions...', name: 'NotificationService');
+    var notificationStatus = await Permission.notification.request();
+    var scheduleExactAlarmStatus = await Permission.scheduleExactAlarm.request();
+    developer.log('Permission status: notification: $notificationStatus, scheduleExactAlarm: $scheduleExactAlarmStatus', name: 'NotificationService');
   }
 
   Future<void> scheduleNotification(int id, String title, DateTime scheduledTime) async {
-    if (!(await Permission.notification.isGranted) || !(await Permission.scheduleExactAlarm.isGranted)) {
-      developer.log('Cannot schedule notification due to missing permissions.', name: 'NotificationService');
+    developer.log('Attempting to schedule notification for task: "$title" at $scheduledTime', name: 'NotificationService');
+
+    if (scheduledTime.isBefore(DateTime.now())) {
+      developer.log('Scheduled time ($scheduledTime) is in the past. Notification not scheduled.', name: 'NotificationService');
       return;
     }
 
-    await flutterLocalNotificationsPlugin.zonedSchedule(
-      id,
-      'Task Due: $title',
-      'Your task "$title" is due now.',
-      tz.TZDateTime.from(scheduledTime, tz.local),
-      NotificationDetails(
-        android: AndroidNotificationDetails(
-          channel.id,
-          channel.name,
-          channelDescription: channel.description,
-          importance: Importance.max,
-          priority: Priority.high,
-          playSound: true, // Explicitly enable sound
-          ticker: 'ticker', // Add ticker text
+    var notificationPermission = await Permission.notification.isGranted;
+    var scheduleExactAlarmPermission = await Permission.scheduleExactAlarm.isGranted;
+
+    if (!notificationPermission || !scheduleExactAlarmPermission) {
+      developer.log('Cannot schedule notification due to missing permissions. Notification: $notificationPermission, Exact Alarm: $scheduleExactAlarmPermission', name: 'NotificationService');
+      // Optionally, re-request permissions here if it makes sense in the app's flow
+      // await _requestPermissions();
+      return;
+    }
+
+    try {
+        await flutterLocalNotificationsPlugin.zonedSchedule(
+        id,
+        'Task Due: $title',
+        'Your task "$title" is due now.',
+        tz.TZDateTime.from(scheduledTime, tz.local),
+        NotificationDetails(
+            android: AndroidNotificationDetails(
+            channel.id,
+            channel.name,
+            channelDescription: channel.description,
+            importance: Importance.max,
+            priority: Priority.high,
+            playSound: true,
+            ticker: 'ticker',
+            ),
         ),
-      ),
-      payload: 'TaskID|$id|$title', // Add a payload
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
-    );
-     developer.log('Scheduled notification for task: $title at $scheduledTime', name: 'NotificationService');
+        payload: 'TaskID|$id|$title',
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+        );
+        developer.log('Successfully scheduled notification for task: "$title" at $scheduledTime', name: 'NotificationService');
+    } catch (e) {
+        developer.log('Error scheduling notification: $e', name: 'NotificationService', error: e);
+    }
   }
 
   Future<void> cancelNotification(int id) async {
+    developer.log('Cancelling notification with id: $id', name: 'NotificationService');
     await flutterLocalNotificationsPlugin.cancel(id);
+    developer.log('Notification with id: $id cancelled.', name: 'NotificationService');
   }
 }

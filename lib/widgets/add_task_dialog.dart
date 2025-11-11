@@ -33,13 +33,13 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
     final pickedDate = await showDatePicker(
       context: context,
       initialDate: _selectedDate ?? now,
-      firstDate: now,
+      firstDate: now.subtract(const Duration(days: 1)), // Allow selecting today
       lastDate: DateTime(2101),
     );
     if (pickedDate == null) {
       return;
     }
-    // ignore: use_build_context_synchronously
+
     final pickedTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.fromDateTime(_selectedDate ?? now),
@@ -47,14 +47,25 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
     if (pickedTime == null) {
       return;
     }
-    setState(() {
-      _selectedDate = DateTime(
-        pickedDate.year,
-        pickedDate.month,
-        pickedDate.day,
-        pickedTime.hour,
-        pickedTime.minute,
+
+    final scheduledDateTime = DateTime(
+      pickedDate.year,
+      pickedDate.month,
+      pickedDate.day,
+      pickedTime.hour,
+      pickedTime.minute,
+    );
+
+    if (scheduledDateTime.isBefore(DateTime.now())) {
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Cannot select a time in the past.')),
       );
+      return;
+    }
+
+    setState(() {
+      _selectedDate = scheduledDateTime;
     });
   }
 

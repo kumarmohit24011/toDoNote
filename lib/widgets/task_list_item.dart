@@ -51,9 +51,12 @@ class TaskListItem extends StatelessWidget {
                   children: [
                     Icon(Icons.calendar_today_outlined, size: 14, color: colorScheme.secondary),
                     const SizedBox(width: 8),
-                    Text(
-                      DateFormat('MMM d, yyyy').format(task.dueDate!),
-                      style: textTheme.bodyMedium?.copyWith(color: colorScheme.secondary),
+                    Expanded(
+                      child: Text(
+                        DateFormat('MMM d, yyyy, h:mm a').format(task.dueDate!),
+                        style: textTheme.bodyMedium?.copyWith(color: colorScheme.secondary),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
