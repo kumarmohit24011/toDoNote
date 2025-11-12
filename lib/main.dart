@@ -6,12 +6,11 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'providers/task_provider.dart';
 import 'providers/theme_provider.dart';
 import 'screens/home_screen.dart';
-import 'services/notification_service.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   tz.initializeTimeZones();
-  await NotificationService().init();
   runApp(
     MultiProvider(
       providers: [
