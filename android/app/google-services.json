@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "82624176957",
+    "project_id": "flutterdonote",
+    "storage_bucket": "flutterdonote.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:82624176957:android:c8f759e8b4c087d27c1b54",
+        "android_client_info": {
+          "package_name": "com.example.myapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDS0VcnSSKAhVM884jW6WN--c7iBKXFabw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

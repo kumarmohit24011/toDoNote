@@ -4,12 +4,31 @@ import '../providers/task_provider.dart';
 import '../providers/theme_provider.dart';
 import '../widgets/add_task_dialog.dart';
 import '../widgets/task_list.dart';
+import '../services/notification_service.dart';
+import '../services/auth_service.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _initializeNotifications();
+  }
+
+  Future<void> _initializeNotifications() async {
+    final notificationService = NotificationService();
+    await notificationService.init();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context, listen: false);
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -25,6 +44,10 @@ class HomeScreen extends StatelessWidget {
                   onPressed: () => themeProvider.toggleTheme(),
                 );
               },
+            ),
+            IconButton(
+              icon: const Icon(Icons.logout),
+              onPressed: () => authService.signOut(),
             ),
           ],
           bottom: const TabBar(

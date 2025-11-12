@@ -1,117 +1,69 @@
-
-import 'dart:convert';
-import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/material.dart';
 import '../models/task.dart';
-import '../services/notification_service.dart';
-import 'dart:developer' as developer;
 
 class TaskProvider with ChangeNotifier {
+  final User? _user;
+  DatabaseReference? _tasksRef;
+
   List<Task> _tasks = [];
 
-  List<Task> get tasks {
-    _tasks.sort((a, b) {
-      if (a.isImportant && !b.isImportant) {
-        return -1;
-      } else if (!a.isImportant && b.isImportant) {
-        return 1;
+  TaskProvider(this._user) {
+    if (_user != null) {
+      _tasksRef = FirebaseDatabase.instance.ref('tasks/${_user!.uid}');
+      _listenToTasks();
+    }
+  }
+
+  List<Task> get tasks => _tasks;
+
+  void _listenToTasks() {
+    _tasksRef?.onValue.listen((event) {
+      final data = event.snapshot.value as Map<dynamic, dynamic>?;
+      if (data != null) {
+        _tasks = data.entries.map((entry) {
+          final taskData = entry.value as Map<dynamic, dynamic>;
+          return Task(
+            id: entry.key,
+            title: taskData['title'] ?? '',
+            isCompleted: taskData['isCompleted'] ?? false,
+            dueDate: taskData['dueDate'] != null
+                ? DateTime.parse(taskData['dueDate'])
+                : null,
+            isImportant: taskData['isImportant'] ?? false,
+          );
+        }).toList();
       } else {
-        return 0;
+        _tasks = [];
       }
+      notifyListeners();
     });
-    return _tasks;
-  }
-
-  TaskProvider() {
-    loadTasks();
-  }
-
-  Future<void> loadTasks() async {
-    final prefs = await SharedPreferences.getInstance();
-    final taskList = prefs.getStringList('tasks') ?? [];
-    _tasks = taskList.map((json) => Task.fromJson(jsonDecode(json))).toList();
-    notifyListeners();
-  }
-
-  Future<void> saveTasks() async {
-    final prefs = await SharedPreferences.getInstance();
-    final taskList = _tasks.map((task) => jsonEncode(task.toJson())).toList();
-    await prefs.setStringList('tasks', taskList);
   }
 
   void addTask(String title, DateTime? dueDate, bool isImportant) {
-    final newTask = Task(
-      id: DateTime.now().toString(),
-      title: title,
-      dueDate: dueDate,
-      isImportant: isImportant,
-    );
-    _tasks.add(newTask);
-    if (dueDate != null) {
-      developer.log('Attempting to schedule notification for new task: ${newTask.title}', name: 'TaskProvider');
-      NotificationService().scheduleNotification(newTask.id.hashCode, newTask.title, dueDate);
-    }
-    saveTasks();
-    notifyListeners();
-  }
-
-  void toggleTaskStatus(String id) {
-    final taskIndex = _tasks.indexWhere((task) => task.id == id);
-    if (taskIndex != -1) {
-      _tasks[taskIndex].isCompleted = !_tasks[taskIndex].isCompleted;
-      final task = _tasks[taskIndex];
-      if (task.isCompleted && task.dueDate != null) {
-        NotificationService().cancelNotification(task.id.hashCode);
-      }
-      saveTasks();
-      notifyListeners();
+    if (_tasksRef != null) {
+      final newTaskRef = _tasksRef!.push();
+      newTaskRef.set({
+        'title': title,
+        'isCompleted': false,
+        'dueDate': dueDate?.toIso8601String(),
+        'isImportant': isImportant,
+      });
     }
   }
 
-  void toggleTaskImportance(String id) {
-    final taskIndex = _tasks.indexWhere((task) => task.id == id);
-    if (taskIndex != -1) {
-      _tasks[taskIndex].isImportant = !_tasks[taskIndex].isImportant;
-      saveTasks();
-      notifyListeners();
+  void toggleTask(Task task) {
+    if (_tasksRef != null) {
+      _tasksRef!.child(task.id).update({
+        'isCompleted': !task.isCompleted,
+      });
     }
   }
 
-  void deleteTask(String id) {
-    final taskIndex = _tasks.indexWhere((task) => task.id == id);
-    if (taskIndex != -1) {
-      final task = _tasks[taskIndex];
-      if (task.dueDate != null) {
-        NotificationService().cancelNotification(task.id.hashCode);
-      }
-      _tasks.removeAt(taskIndex);
-      saveTasks();
-      notifyListeners();
-    }
-  }
-
-  void editTask(String id, String newTitle, DateTime? newDueDate, bool isImportant) {
-    final taskIndex = _tasks.indexWhere((task) => task.id == id);
-    if (taskIndex != -1) {
-      final oldTask = _tasks[taskIndex];
-
-      // Cancel old notification if due date exists
-      if (oldTask.dueDate != null) {
-        NotificationService().cancelNotification(oldTask.id.hashCode);
-      }
-
-      // Update task details
-      _tasks[taskIndex].title = newTitle;
-      _tasks[taskIndex].dueDate = newDueDate;
-      _tasks[taskIndex].isImportant = isImportant;
-
-      // Schedule new notification if new due date exists
-      if (newDueDate != null) {
-        NotificationService().scheduleNotification(oldTask.id.hashCode, newTitle, newDueDate);
-      }
-
-      saveTasks();
-      notifyListeners();
+  void deleteTask(Task task) {
+    if (_tasksRef != null) {
+      _tasksRef!.child(task.id).remove();
     }
   }
 }

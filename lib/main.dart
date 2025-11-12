@@ -2,19 +2,31 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'providers/task_provider.dart';
 import 'providers/theme_provider.dart';
 import 'screens/home_screen.dart';
+import 'screens/login_screen.dart';
 import 'services/notification_service.dart';
+import 'services/auth_service.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   await NotificationService().init();
   runApp(
     MultiProvider(
       providers: [
+        Provider<AuthService>(create: (_) => AuthService()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
-        ChangeNotifierProvider(create: (_) => TaskProvider()),
+        ChangeNotifierProxyProvider<User?, TaskProvider>(
+          create: (_) => TaskProvider(null),
+          update: (context, user, previous) => TaskProvider(user),
+        ),
       ],
       child: const ToDoApp(),
     ),
@@ -124,9 +136,33 @@ class ToDoApp extends StatelessWidget {
           theme: lightTheme,
           darkTheme: darkTheme,
           themeMode: themeProvider.themeMode,
-          home: const HomeScreen(),
+          home: const AuthWrapper(),
           debugShowCheckedModeBanner: false,
         );
+      },
+    );
+  }
+}
+
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+    return StreamBuilder<User?>(
+      stream: authService.user,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.active) {
+          final User? user = snapshot.data;
+          return user == null ? const LoginScreen() : const HomeScreen();
+        } else {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
       },
     );
   }
