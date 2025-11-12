@@ -40,6 +40,7 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
       return;
     }
 
+    if (!mounted) return;
     final pickedTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.fromDateTime(_selectedDate ?? now),
@@ -60,7 +61,7 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
     );
 
     if (scheduledDateTime.isBefore(DateTime.now())) {
-      // ignore: use_build_context_synchronously
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Cannot select a time in the past.')),
       );
@@ -156,7 +157,7 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
                         _isImportant = value;
                       });
                     },
-                    activeColor: theme.colorScheme.primary,
+                    activeThumbColor: theme.colorScheme.primary,
                   ),
                 ],
               ),
