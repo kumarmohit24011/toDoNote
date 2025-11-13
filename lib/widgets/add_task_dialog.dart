@@ -39,7 +39,7 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
     if (pickedDate == null) {
       return;
     }
-    // ignore: use_build_context_synchronously
+    if (!mounted) return;
     final pickedTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.fromDateTime(_selectedDate ?? now),
@@ -103,21 +103,21 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
           ),
           const SizedBox(height: 16),
           Row(
-            children: [
-              Checkbox(
-                value: _isImportant,
-                onChanged: (value) {
-                  setState(() {
-                    _isImportant = value ?? false;
-                  });
-                },
-                activeColor: Theme.of(context).colorScheme.primary,
+                children: [
+                  Checkbox(
+                    value: _isImportant,
+                    onChanged: (value) {
+                      setState(() {
+                        _isImportant = value ?? false;
+                      });
+                    },
+                    activeColor: Theme.of(context).colorScheme.primary,
+                  ),
+                  const Text('Mark as Important'),
+                ],
               ),
-              const Text('Mark as Important'),
-            ],
-          ),
         ],
-      ),
+          ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),

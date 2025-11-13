@@ -15,6 +15,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final String _searchQuery = '';
+  bool _sortAscending = true;
+
   @override
   void initState() {
     super.initState();
@@ -35,6 +38,20 @@ class _HomeScreenState extends State<HomeScreen> {
         appBar: AppBar(
           title: const Text('ToDoNote'),
           actions: [
+            IconButton(
+              icon: const Icon(Icons.search),
+              onPressed: () {
+                showSearch(context: context, delegate: TaskSearchDelegate());
+              },
+            ),
+            IconButton(
+              icon: Icon(_sortAscending ? Icons.arrow_downward : Icons.arrow_upward),
+              onPressed: () {
+                setState(() {
+                  _sortAscending = !_sortAscending;
+                });
+              },
+            ),
             Consumer<ThemeProvider>(
               builder: (context, themeProvider, child) {
                 return IconButton(
@@ -57,10 +74,18 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
-        body: const TabBarView(
+        body: TabBarView(
           children: [
-            TaskList(isCompletedTasks: false),
-            TaskList(isCompletedTasks: true),
+            TaskList(
+              isCompletedTasks: false,
+              searchQuery: _searchQuery,
+              sortAscending: _sortAscending,
+            ),
+            TaskList(
+              isCompletedTasks: true,
+              searchQuery: _searchQuery,
+              sortAscending: _sortAscending,
+            ),
           ],
         ),
         floatingActionButton: FloatingActionButton(
@@ -87,6 +112,60 @@ class _HomeScreenState extends State<HomeScreen> {
           child: const Icon(Icons.add),
         ),
       ),
+    );
+  }
+}
+
+class TaskSearchDelegate extends SearchDelegate {
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: const Icon(Icons.clear),
+        onPressed: () {
+          query = '';
+        },
+      ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back),
+      onPressed: () {
+        close(context, null);
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    return _buildSearchResults(context);
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return _buildSearchResults(context);
+  }
+
+  Widget _buildSearchResults(BuildContext context) {
+    final taskProvider = Provider.of<TaskProvider>(context);
+    final tasks = taskProvider.tasks
+        .where((task) => task.title.toLowerCase().contains(query.toLowerCase()))
+        .toList();
+
+    return ListView.builder(
+      itemCount: tasks.length,
+      itemBuilder: (context, index) {
+        final task = tasks[index];
+        return ListTile(
+          title: Text(task.title),
+          onTap: () {
+            // Optional: navigate to task details or something
+          },
+        );
+      },
     );
   }
 }

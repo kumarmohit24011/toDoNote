@@ -6,10 +6,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'providers/task_provider.dart';
 import 'providers/theme_provider.dart';
-import 'screens/home_screen.dart';
-import 'screens/login_screen.dart';
 import 'services/notification_service.dart';
 import 'services/auth_service.dart';
+import 'widgets/auth_wrapper.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -22,10 +21,18 @@ void main() async {
     MultiProvider(
       providers: [
         Provider<AuthService>(create: (_) => AuthService()),
+        StreamProvider<User?>.value(
+          value: FirebaseAuth.instance.authStateChanges(),
+          initialData: null,
+        ),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProxyProvider<User?, TaskProvider>(
-          create: (_) => TaskProvider(null),
-          update: (context, user, previous) => TaskProvider(user),
+          create: (context) => TaskProvider(null),
+          update: (context, user, previous) {
+            final taskProvider = previous ?? TaskProvider(user);
+            taskProvider.updateUser(user);
+            return taskProvider;
+          },
         ),
       ],
       child: const ToDoApp(),
@@ -40,7 +47,7 @@ class ToDoApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {
-        final Color primarySeedColor = Colors.cyan;
+        const Color primarySeedColor = Colors.cyan;
 
         final TextTheme appTextTheme = TextTheme(
           displayLarge: GoogleFonts.oswald(fontSize: 57, fontWeight: FontWeight.bold),
@@ -72,7 +79,7 @@ class ToDoApp extends StatelessWidget {
           ),
           cardTheme: CardThemeData(
             elevation: 8.0,
-            shadowColor: Colors.black.withOpacity(0.1),
+            shadowColor: Colors.black.withAlpha(25),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16.0),
             ),
@@ -112,7 +119,7 @@ class ToDoApp extends StatelessWidget {
           ),
            cardTheme: CardThemeData(
             elevation: 10.0,
-            shadowColor: Colors.black.withOpacity(0.3),
+            shadowColor: Colors.black.withAlpha(77),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16.0),
             ),
@@ -139,30 +146,6 @@ class ToDoApp extends StatelessWidget {
           home: const AuthWrapper(),
           debugShowCheckedModeBanner: false,
         );
-      },
-    );
-  }
-}
-
-class AuthWrapper extends StatelessWidget {
-  const AuthWrapper({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final authService = Provider.of<AuthService>(context);
-    return StreamBuilder<User?>(
-      stream: authService.user,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.active) {
-          final User? user = snapshot.data;
-          return user == null ? const LoginScreen() : const HomeScreen();
-        } else {
-          return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
-        }
       },
     );
   }

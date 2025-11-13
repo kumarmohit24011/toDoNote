@@ -2,7 +2,7 @@
 
 ## Overview
 
-ToDoNote is a simple and beautiful To-Do list application for Flutter. It helps users organize their tasks, set due dates, and receive notifications. The app features a modern, clean UI with both light and dark themes.
+ToDoNote is a simple and beautiful To-Do list application for Flutter. It helps users organize their tasks, set due dates, and receive notifications. The app features a modern, clean UI with both light and dark themes, and leverages Firebase for cloud storage and real-time data synchronization.
 
 ## Design & Features
 
@@ -23,6 +23,16 @@ ToDoNote is a simple and beautiful To-Do list application for Flutter. It helps 
 *   **Task Deletion:** Users can delete tasks by tapping the delete button.
 *   **Task Prioritization:** Users can mark tasks as "important," which visually distinguishes them with a yellow border and moves them to the top of the task list.
 
+### Cloud Features (Firebase)
+
+*   **Firebase Authentication:**
+    *   **User Accounts:** Users can create a new account with an email and password or sign in to an existing one.
+    *   **Secure Login:** The app securely handles user authentication and session management.
+    *   **Logout:** Users can sign out of their accounts.
+*   **Firebase Realtime Database:**
+    *   **Cloud Storage:** All user tasks are securely stored in the cloud.
+    *   **Real-time Sync:** Changes to the task list (adding, completing, deleting) are instantly synchronized across all devices where the user is logged in.
+
 ### UI Components
 
 *   **`TaskListItem`:** A custom widget that displays a task with a checkbox, title, and due date. The card has a modern, lifted design with a subtle shadow.
@@ -35,6 +45,3 @@ ToDoNote is a simple and beautiful To-Do list application for Flutter. It helps 
 *   **`const` Widgets:** Static widgets are declared as `const` to improve performance.
 *   **Isolated State:** The `Consumer` widget is used to isolate theme-dependent widgets, preventing unnecessary rebuilds of the entire screen.
 
-## Next Steps
-
-*   **Firebase Integration:** The next step is to integrate Firebase to enable cloud storage and real-time data synchronization.
