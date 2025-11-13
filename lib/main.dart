@@ -8,6 +8,7 @@ import 'providers/task_provider.dart';
 import 'providers/theme_provider.dart';
 import 'services/notification_service.dart';
 import 'services/auth_service.dart';
+import 'services/home_widget_service.dart';
 import 'widgets/auth_wrapper.dart';
 import 'firebase_options.dart';
 
@@ -17,6 +18,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await NotificationService().init();
+  await HomeWidgetService.initialize();
   runApp(
     MultiProvider(
       providers: [

@@ -6,6 +6,7 @@ import '../widgets/add_task_dialog.dart';
 import '../widgets/task_list.dart';
 import '../services/notification_service.dart';
 import '../services/auth_service.dart';
+import './active_tasks_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -38,6 +39,15 @@ class _HomeScreenState extends State<HomeScreen> {
         appBar: AppBar(
           title: const Text('ToDoNote'),
           actions: [
+            IconButton(
+              icon: const Icon(Icons.check_box_outline_blank),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ActiveTasksScreen()),
+                );
+              },
+            ),
             IconButton(
               icon: const Icon(Icons.search),
               onPressed: () {

@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import '../models/task.dart';
+import '../services/home_widget_service.dart';
 
 class TaskProvider with ChangeNotifier {
   User? _user;
@@ -58,6 +59,7 @@ class TaskProvider with ChangeNotifier {
       } else {
         _tasks = [];
       }
+      HomeWidgetService.updateTasks(_tasks.where((task) => !task.isCompleted).toList());
       notifyListeners();
     });
   }

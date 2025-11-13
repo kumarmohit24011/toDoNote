@@ -2,7 +2,7 @@
 
 ## Overview
 
-ToDoNote is a simple and beautiful To-Do list application for Flutter. It helps users organize their tasks, set due dates, and receive notifications. The app features a modern, clean UI with both light and dark themes, and leverages Firebase for cloud storage and real-time data synchronization.
+ToDoNote is a simple and beautiful To-Do list application for Flutter. It helps users organize their tasks, set due dates, and receive notifications. The app features a modern, clean UI with both light and dark themes, and leverages Firebase for cloud storage and real-time data synchronization. It also includes a home screen widget to view active tasks at a glance.
 
 ## Design & Features
 
@@ -32,6 +32,16 @@ ToDoNote is a simple and beautiful To-Do list application for Flutter. It helps 
 *   **Firebase Realtime Database:**
     *   **Cloud Storage:** All user tasks are securely stored in the cloud.
     *   **Real-time Sync:** Changes to the task list (adding, completing, deleting) are instantly synchronized across all devices where the user is logged in.
+
+### Home Screen Widget
+
+*   **At-a-Glance View:** A home screen widget displays a list of active (incomplete) tasks, allowing users to quickly see what they need to do without opening the app.
+*   **Native Implementation:** The widget is implemented using native Android components:
+    *   `home_widget_layout.xml`: Defines the widget's UI.
+    *   `home_widget_info.xml`: Provides metadata for the widget, such as its size and update frequency.
+    *   `HomeWidgetProvider.kt`: A Kotlin class that manages the widget's behavior and updates.
+*   **Flutter Integration:** The `home_widget` package is used to facilitate communication between the Flutter app and the native Android widget.
+*   **Data Synchronization:** The `HomeWidgetService` in the Flutter app sends the latest list of active tasks to the widget whenever the task list is updated in the `TaskProvider`.
 
 ### UI Components
 
