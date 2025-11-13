@@ -4,7 +4,9 @@ import 'dart:developer' as developer;
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    serverClientId: '82624176957-jpqqdknfcqkjhf7nj2g17i7bic5g3it5.apps.googleusercontent.com',
+  );
 
   Stream<User?> get user => _auth.authStateChanges();
 

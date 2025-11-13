@@ -34,6 +34,43 @@
           ]
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:82624176957:android:13d5b8d3deedc9077c1b54",
+        "android_client_info": {
+          "package_name": "com.mohitbhardwaj.doNoteapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "82624176957-23st7oeh97443i8k72cti2788fdm7p1t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mohitbhardwaj.doNoteapp",
+            "certificate_hash": "3ef48c017402e9d2050ed12694ace9a1363646b7"
+          }
+        },
+        {
+          "client_id": "82624176957-jpqqdknfcqkjhf7nj2g17i7bic5g3it5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDS0VcnSSKAhVM884jW6WN--c7iBKXFabw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "82624176957-jpqqdknfcqkjhf7nj2g17i7bic5g3it5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
     }
   ],
   "configuration_version": "1"
