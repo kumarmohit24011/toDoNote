@@ -5,6 +5,7 @@
     android:updatePeriodMillis="86400000"
     android:previewImage="@mipmap/ic_launcher"
     android:initialLayout="@layout/home_widget_layout"
+    android:configure="com.mohitbhardwaj.doNoteapp.WidgetConfigureActivity"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen">
 </appwidget-provider>

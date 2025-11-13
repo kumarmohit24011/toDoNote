@@ -20,7 +20,16 @@ class HomeWidgetProvider : AppWidgetProvider() {
             val launchIntent = Intent(context, MainActivity::class.java)
             val pendingIntent = PendingIntent.getActivity(context, 0, launchIntent, PendingIntent.FLAG_IMMUTABLE)
 
-            val views = RemoteViews(context.packageName, R.layout.home_widget_layout).apply {
+            val prefs = context.getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
+            val backgroundColor = prefs.getString("background_color_$appWidgetId", "white")
+
+            val layout = if (backgroundColor == "transparent") {
+                R.layout.home_widget_layout_transparent
+            } else {
+                R.layout.home_widget_layout
+            }
+
+            val views = RemoteViews(context.packageName, layout).apply {
                 setTextViewText(R.id.widget_title, "Active Tasks")
                 setRemoteAdapter(R.id.widget_task_list, intent)
                 setEmptyView(R.id.widget_task_list, R.id.empty_view)
